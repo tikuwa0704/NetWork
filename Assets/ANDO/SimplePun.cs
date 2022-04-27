@@ -9,6 +9,9 @@ public class SimplePun : MonoBehaviourPunCallbacks
     // Use this for initialization
     void Start()
     {
+        // プレイヤー自身の名前を"Player"に設定する
+        PhotonNetwork.NickName = "Player";
+
         //旧バージョンでは引数必須でしたが、PUN2では不要です。
         PhotonNetwork.ConnectUsingSettings();
     }
@@ -35,5 +38,29 @@ public class SimplePun : MonoBehaviourPunCallbacks
         //自分だけが操作できるようにスクリプトを有効にする
         MonsterScript monsterScript = monster.GetComponent<MonsterScript>();
         monsterScript.enabled = true;
+
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            Debug.Log($"{player.NickName}({player.ActorNumber})");
+        }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("自身がマスタークライアントです");
+        }
+    }
+
+    // 他プレイヤーがルームへ参加した時に呼ばれるコールバック
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        
+        Debug.Log($"{newPlayer.NickName}が参加しました");
+    }
+
+    // 他プレイヤーがルームから退出した時に呼ばれるコールバック
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        
+        Debug.Log($"{otherPlayer.NickName}が退出しました");
     }
 }

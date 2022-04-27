@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class MonsterScript : MonoBehaviour
+public class MonsterScript : MonoBehaviourPunCallbacks
 {
     private Animator animator;
     // Use this for initialization
@@ -14,22 +16,25 @@ public class MonsterScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey("up"))
+        if (photonView.IsMine)
         {
-            transform.position += transform.forward * 5.0f * Time.deltaTime;
-            animator.SetBool("walk", true);
-        }
-        else
-        {
-            animator.SetBool("walk", false);
-        }
-        if (Input.GetKey("right"))
-        {
-            transform.Rotate(new Vector3(0, 30, 0)*Time.deltaTime);
-        }
-        if (Input.GetKey("left"))
-        {
-            transform.Rotate(new Vector3(0, -30, 0) * Time.deltaTime);
+            if (Input.GetKey("up"))
+            {
+                transform.position += transform.forward * 5.0f * Time.deltaTime;
+                animator.SetBool("walk", true);
+            }
+            else
+            {
+                animator.SetBool("walk", false);
+            }
+            if (Input.GetKey("right"))
+            {
+                transform.Rotate(new Vector3(0, 30, 0) * Time.deltaTime);
+            }
+            if (Input.GetKey("left"))
+            {
+                transform.Rotate(new Vector3(0, -30, 0) * Time.deltaTime);
+            }
         }
     }
 }

@@ -6,6 +6,8 @@ using Photon.Realtime;
 public class SimplePun : MonoBehaviourPunCallbacks
 {
 
+    [SerializeField] GameObject _cameraPrefab;
+
     // Use this for initialization
     void Start()
     {
@@ -22,21 +24,29 @@ public class SimplePun : MonoBehaviourPunCallbacks
         GUILayout.Label(PhotonNetwork.NetworkClientState.ToString());
     }
 
-
+    
     //ルームに入室前に呼び出される
     public override void OnConnectedToMaster()
     {
         // "room"という名前のルームに参加する（ルームが無ければ作成してから参加する）
-        PhotonNetwork.JoinOrCreateRoom("room", new RoomOptions(), TypedLobby.Default);
+        //PhotonNetwork.JoinOrCreateRoom("room", new RoomOptions(), TypedLobby.Default);
+        PhotonNetwork.JoinLobby();
     }
-
+    
     //ルームに入室後に呼び出される
     public override void OnJoinedRoom()
     {
-        //キャラクターを生成
-        GameObject monster = PhotonNetwork.Instantiate("monster", Vector3.zero, Quaternion.identity, 0);
+       
+
+        GameObject monster = PhotonNetwork.Instantiate("BasicMotionsDummyModel", Vector3.zero, Quaternion.identity, 0);
         //自分だけが操作できるようにスクリプトを有効にする
         MonsterScript monsterScript = monster.GetComponent<MonsterScript>();
+
+        _cameraPrefab.GetComponentInChildren<CameraChange>().ChangeLookAt(monster.transform);
+        //キャラクターを生成
+        //GameObject _camera = Instantiate(_cameraPrefab);
+        // _camera.GetComponentInChildren<CameraChange>().ChangeLookAt(monster.transform);
+
         monsterScript.enabled = true;
 
         foreach (var player in PhotonNetwork.PlayerList)
@@ -47,6 +57,12 @@ public class SimplePun : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log("自身がマスタークライアントです");
+        }
+
+        // ルームを作成したプレイヤーは、現在のサーバー時刻をゲームの開始時刻に設定する
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.CurrentRoom.SetStartTime(PhotonNetwork.ServerTimestamp);
         }
     }
 

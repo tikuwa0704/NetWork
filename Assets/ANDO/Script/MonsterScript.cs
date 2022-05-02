@@ -11,11 +11,14 @@ public class MonsterScript : MonoBehaviourPunCallbacks
     
     [SerializeField] float move_speed;
 
+    Rigidbody rb;
+
     // Use this for initialization
     void Start()
     {
         TryGetComponent(out animator);
-        
+        TryGetComponent(out rb);
+
         targetRotation = transform.rotation;
     }
 
@@ -25,28 +28,7 @@ public class MonsterScript : MonoBehaviourPunCallbacks
         if (photonView.IsMine)
         {
             MoveController();
-            /*
-            if (Input.GetKey(KeyCode.W))
-            {
-                transform.position += transform.forward * speed * Time.deltaTime;
-                animator.SetTrigger("forwards");
-            }
-            if (Input.GetKey(KeyCode.S))
-            {
-                transform.position -= transform.forward * speed * Time.deltaTime;
-                animator.SetTrigger("forwards");
-            }
-            if (Input.GetKey(KeyCode.D))
-            {
-                transform.position += transform.right * speed * Time.deltaTime;
-                animator.SetTrigger("right");
-            }
-            if (Input.GetKey(KeyCode.A))
-            {
-                transform.position -= transform.right * speed * Time.deltaTime;
-                animator.SetTrigger("left");
-            }
-            */
+            Jump();
         }
     }
 
@@ -76,5 +58,36 @@ public class MonsterScript : MonoBehaviourPunCallbacks
         if(velocity.magnitude>0)transform.position += velocity * move_speed * speed * Time.deltaTime;
         
     }
+
+    private bool jumpNow = false;
+
+    [SerializeField]
+    float jumpPower;
+
+    void Jump()
+    {
+        if (jumpNow == true) return;
+        //スペースキーを入力
+        if (Input.GetKey(KeyCode.Space))
+        {  
+            rb.AddForce(transform.up * jumpPower, ForceMode.Impulse);
+            jumpNow = true;
+            animator.SetTrigger("jump");
+        }
+
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (jumpNow == true)
+        {
+            if (other.gameObject.CompareTag("Ground"))
+            {
+                jumpNow = false;
+                
+            }
+        }
+    }
+
 }
 
